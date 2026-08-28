@@ -38,7 +38,11 @@ export default defineConfig({
     navigationTimeout: 30_000,
     screenshot: 'only-on-failure',
     trace: 'on-first-retry',
-    video: 'retain-on-failure'
+    video: 'retain-on-failure',
+    viewport: null,
+    launchOptions: {
+      args: ['--start-maximized']
+    }
   },
 
   projects: [
@@ -50,7 +54,7 @@ export default defineConfig({
     {
       name: 'Login Page Tests',
       testDir: './tests/login',
-      use: { ...devices['Desktop Chrome'] }
+      use: { ...devices['Desktop Chrome'], viewport: null, deviceScaleFactor: undefined }
     },
     {
       name: 'chrome',

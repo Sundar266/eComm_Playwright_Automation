@@ -5,6 +5,13 @@ import { DbClient } from '../utilities/dbClient.js';
 import { dbAuthData } from '../utilities/dbAuthData.js';
 
 const test = base.extend({
+  page: async ({ page }, use) => {
+    await page.addInitScript(() => {
+      document.documentElement.style.setProperty('zoom', '50%', 'important');
+    });
+
+    await use(page);
+  },
   logger: async ({}, use, testInfo) => {
     const logger = new Logger(testInfo.title);
     await use(logger);

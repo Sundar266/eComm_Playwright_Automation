@@ -9,8 +9,10 @@
     "test:dashboard": "playwright test tests/dashboard.test.spec.js --project=chrome",
     "test:headed": "playwright test --headed",
     "test:debug": "playwright test --debug",
+    "allure:clean": "powershell -NoProfile -ExecutionPolicy Bypass -Command \"Remove-Item allure-results -Recurse -Force -ErrorAction SilentlyContinue; New-Item allure-results -ItemType Directory -Force | Out-Null\"",
     "allure:generate": "allure generate allure-results --clean -o allure-report",
-    "allure:open": "allure open allure-report"
+    "allure:open": "allure open allure-report",
+    "allure:generate:open": "npm run allure:generate && npm run allure:open"
   },
   "keywords": [],
   "author": "Sundar",
@@ -23,5 +25,10 @@
     "dotenv": "^17.4.2",
     "js-yaml": "^5.4.1",
     "oracledb": "^7.0.1"
+  },
+  "dependencies": {
+    "csv-parse": "^7.0.2",
+    "pdf-parse": "^2.4.5",
+    "xlsx": "^0.18.5"
   }
 }
