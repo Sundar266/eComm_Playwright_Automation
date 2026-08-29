@@ -16,7 +16,7 @@ test.describe('Login Tests', () => {
     ]);
   });
 
-  test('Login with invalid credentials', async ({ page, logger, actionValidation }) => {
+  test.only('Login with invalid credentials', async ({ page, logger, actionValidation }) => {
     const loginPage = new LoginPage(page, logger);
     await loginPage.open();
     //Login with invalid username and password
@@ -27,21 +27,44 @@ test.describe('Login Tests', () => {
     await expect(page.getByRole('alert')).toHaveText('Incorrect email or password.');
   });
 
-  test('Login with empty credentials', async ({ page, logger, actionValidation }) => {
+  test('Login with empty credentials', async ({ page, logger }) => {
     const loginPage = new LoginPage(page, logger);
     await loginPage.open();
     //Passing empty strings for username and password to validate the error messages
     await loginPage.login('', '');
-    await expect(page.getByText('*Enter Valid Email')).toBeVisible();
+    await expect(page.getByText('*Email is required')).toBeVisible();
     await expect(page.getByText('*Password is required')).toBeVisible();
   });
 
-  test('Verify the Register and Forgot Password links', async ({ page, logger, actionValidation }) => {
+  test('Verify the Register and Forgot Password links', async ({ page, logger }) => {
     const loginPage = new LoginPage(page, logger);
     await loginPage.open();
     //Here toBeVisible() is an async function, so we need to await it to ensure that the test waits for the visibility 
     //check to complete before proceeding.
-    await expect(page.getByRole('link', { name: 'Register' })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Forgot password?' })).toBeVisible();
+    await expect(loginPage.registerLink).toBeVisible();
+    await expect(loginPage.forgotPasswordLink).toBeVisible();
+  });
+
+  test('Validate if Forgot Password link works', async ({ page, logger, actionValidation }) => {
+    const loginPage = new LoginPage(page, logger);
+    await loginPage.open();
+    await loginPage.clickForgotPassword();
+    page.waitForTimeout(5000);
+    page.waitForLoadState('networkidle');
+    await actionValidation.validate([
+      { type: 'url', expected: `${process.env.BASE_URL}/client/#/auth/password-new` },
+      { type: 'locator', locator: loginPage.forgotPasswordHeading }
+    ]);
+  });
+
+  test('Validate if Register link works', async ({ page, logger, actionValidation }) => {
+    const loginPage = new LoginPage(page, logger);
+    await loginPage.open();
+    await loginPage.clickRegister();
+    await page.waitForLoadState('networkidle');
+    await actionValidation.validate([
+      { type: 'url', expected: `${process.env.BASE_URL}#/auth/register` },
+      { type: 'locator', locator: loginPage.registerHeading }
+    ]);
   });
 });

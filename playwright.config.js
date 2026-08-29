@@ -52,8 +52,12 @@ export default defineConfig({
       testMatch: /auth\.setup\.js/
     },
     {
-      name: 'Login Page Tests',
+      name: 'LoginPageTests',
       testDir: './tests/login',
+      //Desktop Chrome supplies deviceScaleFactor, which Playwright rejects when that project sets 
+      // viewport: null. hence, removing that device setting only for the login project, preserving 
+      // host-sized maximization. viewport: null is repeated because the Login Page Tests project spreads this preset
+      // That preset includes its own fixed viewport, typically, hence removing
       use: { ...devices['Desktop Chrome'], viewport: null, deviceScaleFactor: undefined }
     },
     {
