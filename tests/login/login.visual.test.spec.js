@@ -1,7 +1,7 @@
 import { test, expect } from '../../fixtures/test.fixture.js';
 import { LoginPage } from '../../pages/LoginPage.js';
 
-test.describe('Login Page Visual Tests', () => {
+test.describe('Login Page Visual Tests', { tag: '@Regression' }, () => {
   test('Login page matches the visual baseline', async ({ page, logger }) => {
     const loginPage = new LoginPage(page, logger);
     await loginPage.open();

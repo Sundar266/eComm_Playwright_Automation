@@ -1,0 +1,92 @@
+trigger:
+  branches:
+    include:
+      - main
+
+pr: none
+
+variables:
+  # Create an Azure DevOps Docker Registry service connection for this ACR.
+  dockerRegistryServiceConnection: 'YOUR-ACR-SERVICE-CONNECTION'
+  containerRegistry: 'YOUR-REGISTRY.azurecr.io'
+  imageRepository: 'ecomm-playwright-automation'
+  imageTag: '$(Build.BuildId)'
+
+stages:
+- stage: BuildAndPush
+  displayName: Build and push test image
+  jobs:
+  - job: Build
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+    - checkout: self
+    - task: Docker@2
+      displayName: Build and push image to ACR
+      inputs:
+        command: buildAndPush
+        containerRegistry: '$(dockerRegistryServiceConnection)'
+        repository: '$(imageRepository)'
+        Dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
+        tags: |
+          $(imageTag)
+          latest
+          windows-chrome
+          firefox
+
+- stage: RunTests
+  displayName: Run tests in Docker
+  dependsOn: BuildAndPush
+  condition: succeeded()
+  jobs:
+  - job: Playwright
+    # Replace with your self-hosted VM pool when the VM is registered in ADO.
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+    - task: Docker@2
+      displayName: Login to ACR
+      inputs:
+        command: login
+        containerRegistry: '$(dockerRegistryServiceConnection)'
+    - bash: |
+        set -euo pipefail
+        mkdir -p "$(Build.SourcesDirectory)/test-results" "$(Build.SourcesDirectory)/playwright-report" "$(Build.SourcesDirectory)/allure-results"
+        docker pull "$(containerRegistry)/$(imageRepository):$(imageTag)"
+        docker run --rm \
+          -e CI=true \
+          -e ENV=QA \
+          -e BASE_URL="$(BASE_URL)" \
+          -e API_LOGIN_URL="$(API_LOGIN_URL)" \
+          -e API_USER_EMAIL="$(API_USER_EMAIL)" \
+          -e API_USER_PASSWORD="$(API_USER_PASSWORD)" \
+          -e USER_NAME="$(USER_NAME)" \
+          -e PASSWORD="$(PASSWORD)" \
+          -e DB_ENABLED="$(DB_ENABLED)" \
+          -v "$(Build.SourcesDirectory)/test-results:/app/test-results" \
+          -v "$(Build.SourcesDirectory)/playwright-report:/app/playwright-report" \
+          -v "$(Build.SourcesDirectory)/allure-results:/app/allure-results" \
+          "$(containerRegistry)/$(imageRepository):$(imageTag)"
+      displayName: Execute Playwright tests
+      env:
+        BASE_URL: $(BASE_URL)
+        API_LOGIN_URL: $(API_LOGIN_URL)
+        API_USER_EMAIL: $(API_USER_EMAIL)
+        API_USER_PASSWORD: $(API_USER_PASSWORD)
+        USER_NAME: $(USER_NAME)
+        PASSWORD: $(PASSWORD)
+        DB_ENABLED: $(DB_ENABLED)
+    - task: PublishTestResults@2
+      displayName: Publish test results
+      condition: always()
+      inputs:
+        testResultsFormat: JUnit
+        testResultsFiles: '$(Build.SourcesDirectory)/test-results/**/*.xml'
+        failTaskOnFailedTests: false
+        testRunTitle: Playwright Docker tests
+    - task: PublishPipelineArtifact@1
+      displayName: Publish Playwright artifacts
+      condition: always()
+      inputs:
+        targetPath: '$(Build.SourcesDirectory)/playwright-report'
+        artifact: playwright-report

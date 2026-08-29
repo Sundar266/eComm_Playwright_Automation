@@ -2,5 +2,13 @@
     "invalidUser": {
         "username": "123$hc",
         "password": "OO02334"
+    },
+    "price": {
+        "min": 100,
+        "max": 500
+    },
+    "targettedProductToView": {
+        "name": "iphone 13 pro",
+        "price": 55000
     }
 }

@@ -9,6 +9,19 @@ class DashboardPage extends BasePage {
     this.cartMenu = page.getByRole('button', { name: 'Cart' });
     this.searchBox = page.getByPlaceholder('search');
     this.productsHeading = page.getByRole('heading', { name: 'Filters' });
+    this.productImgs = page.getByRole('img');
+    this.productCard = this.productImgs.locator('..');
+    this.viewButton = page.getByRole('button', { name: 'View' });
+    this.addToCartButton = page.getByRole('button', { name: 'Add To Cart' });
+    this.showingResultsLabel = page.locator('#res');
+    this.minPriceInput = page.getByPlaceholder('Min Price');
+    this.maxPriceInput = page.getByPlaceholder('Max Price');
+    this.productSearchBox = page.getByRole('textbox', { name: 'search' });
+    //View Product section
+    this.viewProductName = page.locator('.col-lg-6.rtl-text').locator('h2');
+    this.viewProductPrice = page.locator('.col-lg-6.rtl-text').locator('h3');
+    this.continueButton = page.getByRole('link', { name: 'Continue Shopping' });
+    this.addToCartButton = page.getByRole('button', { name: 'Add to Cart' });
   }
 
   async open() {
@@ -16,7 +29,7 @@ class DashboardPage extends BasePage {
   }
 
   async searchProduct(productName) {
-    await this.fill(this.searchBox, productName, `Product search entered: ${productName}`);
+    await this.fill(this.productSearchBox, productName, `Product search entered: ${productName}`);
   }
 
   async openOrders() {
@@ -25,6 +38,21 @@ class DashboardPage extends BasePage {
 
   async openCart() {
     await this.click(this.cartMenu, 'Cart menu clicked');
+  }
+
+  async productsCount() {
+    const count = await this.productImgs.count();
+    this.logger.info(`Number of products found: ${count}`);
+    return count;
+  }
+
+  async getShowingResultsText() {
+    const text = await this.showingResultsLabel.innerText();
+    // (/\d+/g) - Global search for one or more digits in the string ( like Showing 2 in page 1), returns an array of matches. We 
+    // take the first match or default to '0' if no match is found.
+    const number = text.match(/\d+/g)?.[0] || '0';
+    this.logger.info(`Showing results text: ${text}`);
+    return Number(number);
   }
 }
 

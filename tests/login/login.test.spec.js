@@ -3,7 +3,7 @@ import { LoginPage } from '../../pages/LoginPage.js';
 import JSONdata from '../../testData/data.json' with { type: 'json' };
 Object.freeze(JSONdata); // Freeze the JSON data to make it immutable
 
-test.describe('Login Tests', () => {
+test.describe('Login Tests', { tag: '@Regression' }, () => {
   test('Login with valid credentials', async ({ page, logger, actionValidation }) => {
     
     const loginPage = new LoginPage(page, logger);
@@ -16,7 +16,7 @@ test.describe('Login Tests', () => {
     ]);
   });
 
-  test.only('Login with invalid credentials', async ({ page, logger, actionValidation }) => {
+  test('Login with invalid credentials', async ({ page, logger, actionValidation }) => {
     const loginPage = new LoginPage(page, logger);
     await loginPage.open();
     //Login with invalid username and password
@@ -52,7 +52,7 @@ test.describe('Login Tests', () => {
     page.waitForTimeout(5000);
     page.waitForLoadState('networkidle');
     await actionValidation.validate([
-      { type: 'url', expected: `${process.env.BASE_URL}/client/#/auth/password-new` },
+      { type: 'url', expected: `${process.env.BASE_URL}#/auth/password-new` },
       { type: 'locator', locator: loginPage.forgotPasswordHeading }
     ]);
   });

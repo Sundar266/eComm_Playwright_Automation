@@ -6,7 +6,7 @@
   "scripts": {
     "test": "playwright test",
     "auth:setup": "playwright test auth-setup/auth.setup.js --project=setup",
-    "test:dashboard": "playwright test tests/dashboard.test.spec.js --project=chrome",
+    "test:dashboard": "playwright test tests/dashboard.test.spec.js --project=windows-chrome",
     "test:headed": "playwright test --headed",
     "test:debug": "playwright test --debug",
     "allure:clean": "powershell -NoProfile -ExecutionPolicy Bypass -Command \"Remove-Item allure-results -Recurse -Force -ErrorAction SilentlyContinue; New-Item allure-results -ItemType Directory -Force | Out-Null\"",

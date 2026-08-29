@@ -8,10 +8,10 @@ const isCI = process.env.CI === 'true';
 
 dotenv.config({ path: `${env}.env` });
 
-const config = await fs.readFile('config.yml', 'utf8');
-const yaml_data = yaml.load(config, { schema: yaml.DEFAULT_SCHEMA });
-
 if(!isCI){
+  const config = await fs.readFile('config.yml', 'utf8');
+  const yaml_data = yaml.load(config, { schema: yaml.DEFAULT_SCHEMA });
+
     process.env.USER_NAME = yaml_data[env].USER_NAME;
     process.env.PASSWORD = yaml_data[env].PASSWORD;
 }
@@ -61,12 +61,22 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'], viewport: null, deviceScaleFactor: undefined }
     },
     {
-      name: 'chrome',
+      name: 'windows-chrome',
       testDir: './tests',
       testIgnore: '**/login/**',
       dependencies: ['setup'],
       use: {
         ...devices['Desktop Chrome'],
+        storageState: 'playwright/.auth/user.json'
+      }
+    },
+    {
+      name: 'firefox',
+      testDir: './tests',
+      testIgnore: '**/login/**',
+      dependencies: ['setup'],
+      use: {
+        ...devices['Desktop Firefox'],
         storageState: 'playwright/.auth/user.json'
       }
     }
@@ -75,6 +85,7 @@ export default defineConfig({
   reporter: [
     ['list'],
     ['html', { open: 'never' }],
-    ['allure-playwright', { resultsDir: 'allure-results', attachments: true }]
+    ['allure-playwright', { resultsDir: 'allure-results', attachments: true }],
+    ...(isCI ? [['junit', { outputFile: 'test-results/results.xml' }]] : [])
   ]
 });

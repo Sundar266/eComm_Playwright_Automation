@@ -1,0 +1,252 @@
+trigger:
+  branches:
+    include:
+      - main
+
+pr:
+  branches:
+    include:
+      - main
+
+# Azure DevOps evaluates cron expressions in UTC. These are 08:30 and 01:30
+# India Standard Time respectively; change them if the team uses another zone.
+schedules:
+- cron: '0 3 * * *'
+  displayName: Business daily 08:30 IST
+  branches:
+    include:
+      - main
+  always: true
+- cron: '0 20 * * 6'
+  displayName: Regression Sunday 01:30 IST
+  branches:
+    include:
+      - main
+  always: true
+
+variables:
+  containerRegistry: 'YOUR-REGISTRY.azurecr.io'
+  imageRepository: 'ecomm-playwright-automation'
+  windowsChromeImage: '$(containerRegistry)/$(imageRepository):windows-chrome'
+  firefoxImage: '$(containerRegistry)/$(imageRepository):firefox'
+  dockerRegistryServiceConnection: 'YOUR-ACR-SERVICE-CONNECTION'
+
+  # Set credentials and SMTP_PASSWORD as secret pipeline variables or in a variable group.
+  BASE_URL: 'https://rahulshettyacademy.com/client/'
+  API_LOGIN_URL: 'https://rahulshettyacademy.com/api/ecom/auth/login'
+  QA_USER_EMAIL: 'YOUR-QA-API-USER'
+  QA_USER_PASSWORD: 'YOUR-QA-API-PASSWORD'
+  QA_USER_NAME: 'YOUR-QA-USER-NAME'
+  QA_PASSWORD: 'YOUR-QA-PASSWORD'
+  DB_ENABLED: 'false'
+  SMTP_SERVER: 'YOUR-SMTP-SERVER'
+  SMTP_PORT: '587'
+  SMTP_USER: 'YOUR-SMTP-USER'
+  SMTP_PASSWORD: 'YOUR-SMTP-PASSWORD'
+  REPORT_RECIPIENT: 'qas@abc.com'
+
+stages:
+- stage: ScheduledTests
+  displayName: Scheduled Playwright tests
+  jobs:
+  - job: Business
+    displayName: Business flow on Windows Chrome
+    condition: eq(variables['Build.CronSchedule.DisplayName'], 'Business daily 08:30 IST')
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+    - checkout: none
+    - task: Docker@2
+      displayName: Login to ACR
+      inputs:
+        command: login
+        containerRegistry: '$(dockerRegistryServiceConnection)'
+    - bash: |
+        set -euo pipefail
+        mkdir -p "$(Build.SourcesDirectory)/test-results" "$(Build.SourcesDirectory)/playwright-report" "$(Build.SourcesDirectory)/allure-results"
+        docker run --rm \
+          -e CI=true -e ENV=QA -e BASE_URL="$(BASE_URL)" \
+          -e API_LOGIN_URL="$(API_LOGIN_URL)" -e API_USER_EMAIL="$(QA_USER_EMAIL)" \
+          -e API_USER_PASSWORD="$(QA_USER_PASSWORD)" -e USER_NAME="$(QA_USER_NAME)" \
+          -e PASSWORD="$(QA_PASSWORD)" -e DB_ENABLED="$(DB_ENABLED)" \
+          -v "$(Build.SourcesDirectory)/test-results:/app/test-results" \
+          -v "$(Build.SourcesDirectory)/playwright-report:/app/playwright-report" \
+          -v "$(Build.SourcesDirectory)/allure-results:/app/allure-results" \
+          "$(windowsChromeImage)" npm test -- business --project=windows-chrome --pass-with-no-tests
+      displayName: Run business specs
+      env:
+        BASE_URL: $(BASE_URL)
+        API_LOGIN_URL: $(API_LOGIN_URL)
+        QA_USER_EMAIL: $(QA_USER_EMAIL)
+        QA_USER_PASSWORD: $(QA_USER_PASSWORD)
+        QA_USER_NAME: $(QA_USER_NAME)
+        QA_PASSWORD: $(QA_PASSWORD)
+        DB_ENABLED: $(DB_ENABLED)
+    - task: PublishPipelineArtifact@1
+      condition: always()
+      inputs:
+        targetPath: '$(Build.SourcesDirectory)/allure-results'
+        artifact: allure-results-business
+
+  - job: Regression
+    displayName: Sharded regression matrix
+    condition: eq(variables['Build.CronSchedule.DisplayName'], 'Regression Sunday 01:30 IST')
+    pool:
+      vmImage: ubuntu-latest
+    strategy:
+      matrix:
+        windowsChromeShard1:
+          testImage: '$(windowsChromeImage)'
+          playwrightProject: windows-chrome
+          shard: 1/2
+        windowsChromeShard2:
+          testImage: '$(windowsChromeImage)'
+          playwrightProject: windows-chrome
+          shard: 2/2
+        firefoxShard1:
+          testImage: '$(firefoxImage)'
+          playwrightProject: firefox
+          shard: 1/2
+        firefoxShard2:
+          testImage: '$(firefoxImage)'
+          playwrightProject: firefox
+          shard: 2/2
+    steps:
+    - checkout: none
+    - task: Docker@2
+      displayName: Login to ACR
+      inputs:
+        command: login
+        containerRegistry: '$(dockerRegistryServiceConnection)'
+    - bash: |
+        set -euo pipefail
+        mkdir -p "$(Build.SourcesDirectory)/test-results" "$(Build.SourcesDirectory)/playwright-report" "$(Build.SourcesDirectory)/allure-results"
+        docker run --rm \
+          -e CI=true -e ENV=QA -e BASE_URL="$(BASE_URL)" \
+          -e API_LOGIN_URL="$(API_LOGIN_URL)" -e API_USER_EMAIL="$(QA_USER_EMAIL)" \
+          -e API_USER_PASSWORD="$(QA_USER_PASSWORD)" -e USER_NAME="$(QA_USER_NAME)" \
+          -e PASSWORD="$(QA_PASSWORD)" -e DB_ENABLED="$(DB_ENABLED)" \
+          -v "$(Build.SourcesDirectory)/test-results:/app/test-results" \
+          -v "$(Build.SourcesDirectory)/playwright-report:/app/playwright-report" \
+          -v "$(Build.SourcesDirectory)/allure-results:/app/allure-results" \
+          "$(testImage)" npm test -- --project="$(playwrightProject)" --grep @Regression --shard="$(shard)"
+      displayName: Run $(playwrightProject) shard $(shard)
+      env:
+        BASE_URL: $(BASE_URL)
+        API_LOGIN_URL: $(API_LOGIN_URL)
+        QA_USER_EMAIL: $(QA_USER_EMAIL)
+        QA_USER_PASSWORD: $(QA_USER_PASSWORD)
+        QA_USER_NAME: $(QA_USER_NAME)
+        QA_PASSWORD: $(QA_PASSWORD)
+        DB_ENABLED: $(DB_ENABLED)
+    - task: PublishTestResults@2
+      displayName: Publish shard test results
+      condition: always()
+      inputs:
+        testResultsFormat: JUnit
+        testResultsFiles: '$(Build.SourcesDirectory)/test-results/**/*.xml'
+        failTaskOnFailedTests: false
+        testRunTitle: 'Playwright $(playwrightProject) shard $(shard)'
+    - task: PublishPipelineArtifact@1
+      displayName: Publish shard Allure results
+      condition: always()
+      inputs:
+        targetPath: '$(Build.SourcesDirectory)/allure-results'
+        artifact: 'allure-results-$(System.JobName)'
+
+- stage: MergeAndNotify
+  displayName: Merge Allure reports and email results
+  dependsOn: ScheduledTests
+  condition: and(succeededOrFailed(), in(variables['Build.CronSchedule.DisplayName'], 'Business daily 08:30 IST', 'Regression Sunday 01:30 IST'))
+  jobs:
+  - job: MergeReport
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+    - task: DownloadPipelineArtifact@2
+      displayName: Download all Allure result artifacts
+      inputs:
+        buildType: current
+        targetPath: '$(Pipeline.Workspace)/allure-results'
+        itemPattern: 'allure-results-*/**'
+    - task: Docker@2
+      displayName: Login to ACR for report generation
+      inputs:
+        command: login
+        containerRegistry: '$(dockerRegistryServiceConnection)'
+    - bash: |
+        set -euo pipefail
+        mkdir -p "$(Build.ArtifactStagingDirectory)/allure-report"
+        docker run --rm \
+          -v "$(Pipeline.Workspace)/allure-results:/app/allure-results" \
+          -v "$(Build.ArtifactStagingDirectory)/allure-report:/app/allure-report" \
+          "$(windowsChromeImage)" allure generate /app/allure-results --clean -o /app/allure-report
+      displayName: Generate merged Allure report
+    - task: ArchiveFiles@2
+      displayName: Archive merged Allure report
+      inputs:
+        rootFolderOrFile: '$(Build.ArtifactStagingDirectory)/allure-report'
+        includeRootFolder: false
+        archiveType: zip
+        archiveFile: '$(Build.ArtifactStagingDirectory)/allure-report.zip'
+        replaceExistingArchive: true
+    - task: PublishPipelineArtifact@1
+      displayName: Publish merged Allure report
+      condition: always()
+      inputs:
+        targetPath: '$(Build.ArtifactStagingDirectory)/allure-report.zip'
+        artifact: allure-report
+    - task: PowerShell@2
+      displayName: Email Allure report
+      condition: always()
+      env:
+        SMTP_PASSWORD: $(SMTP_PASSWORD)
+      inputs:
+        targetType: inline
+        script: |
+          $mail = @{
+            SmtpServer = '$(SMTP_SERVER)'
+            Port = [int]'$(SMTP_PORT)'
+            UseSsl = $true
+            From = '$(SMTP_USER)'
+            To = '$(REPORT_RECIPIENT)'
+            Subject = "Playwright report - $(Build.BuildNumber)"
+            Body = 'The merged Allure report is attached.'
+            Attachments = '$(Build.ArtifactStagingDirectory)/allure-report.zip'
+            Credential = New-Object System.Management.Automation.PSCredential(
+              '$(SMTP_USER)', (ConvertTo-SecureString $env:SMTP_PASSWORD -AsPlainText -Force))
+          }
+          Send-MailMessage @mail
+
+- stage: PullRequestValidation
+  displayName: Validate pull requests and main merges
+  dependsOn: []
+  condition: or(eq(variables['Build.Reason'], 'PullRequest'), and(eq(variables['Build.SourceBranch'], 'refs/heads/main'), ne(variables['Build.Reason'], 'Schedule')))
+  jobs:
+  - job: ValidateRegression
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+    - checkout: none
+    - task: Docker@2
+      displayName: Login to ACR
+      inputs:
+        command: login
+        containerRegistry: '$(dockerRegistryServiceConnection)'
+    - bash: |
+        set -euo pipefail
+        docker run --rm \
+          -e CI=true -e ENV=QA -e BASE_URL="$(BASE_URL)" \
+          -e API_LOGIN_URL="$(API_LOGIN_URL)" -e API_USER_EMAIL="$(QA_USER_EMAIL)" \
+          -e API_USER_PASSWORD="$(QA_USER_PASSWORD)" -e USER_NAME="$(QA_USER_NAME)" \
+          -e PASSWORD="$(QA_PASSWORD)" -e DB_ENABLED="$(DB_ENABLED)" \
+          "$(windowsChromeImage)" npm test -- --project=windows-chrome --grep @Regression
+      displayName: Run regression validation on Windows Chrome
+      env:
+        BASE_URL: $(BASE_URL)
+        API_LOGIN_URL: $(API_LOGIN_URL)
+        QA_USER_EMAIL: $(QA_USER_EMAIL)
+        QA_USER_PASSWORD: $(QA_USER_PASSWORD)
+        QA_USER_NAME: $(QA_USER_NAME)
+        QA_PASSWORD: $(QA_PASSWORD)
+        DB_ENABLED: $(DB_ENABLED)
