@@ -17,11 +17,12 @@ class DashboardPage extends BasePage {
     this.minPriceInput = page.getByPlaceholder('Min Price');
     this.maxPriceInput = page.getByPlaceholder('Max Price');
     this.productSearchBox = page.getByRole('textbox', { name: 'search' });
+    this.productAddedMessage = page.getByRole('alert', {name:"Product Added To Cart"});
     //View Product section
     this.viewProductName = page.locator('.col-lg-6.rtl-text').locator('h2');
     this.viewProductPrice = page.locator('.col-lg-6.rtl-text').locator('h3');
     this.continueButton = page.getByRole('link', { name: 'Continue Shopping' });
-    this.addToCartButton = page.getByRole('button', { name: 'Add to Cart' });
+    this.addToCartButtonFromView = page.getByRole('button', { name: 'Add to Cart' });
   }
 
   async open() {

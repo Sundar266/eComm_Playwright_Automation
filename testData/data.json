@@ -10,5 +10,15 @@
     "targettedProductToView": {
         "name": "iphone 13 pro",
         "price": 55000
+    },
+    "e2eTestData": {
+        "product1": {
+            "name": "iphone 13 pro",
+            "price": 55000
+        },
+        "product2": {
+            "name": "ADIDAS ORIGINAL",
+            "price": 11500
+        }
     }
 }

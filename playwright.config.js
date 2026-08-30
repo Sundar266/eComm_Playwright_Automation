@@ -79,6 +79,16 @@ export default defineConfig({
         ...devices['Desktop Firefox'],
         storageState: 'playwright/.auth/user.json'
       }
+    },
+    {
+      name: 'bussiness-tests',
+      testDir: './tests/business',
+      testIgnore: '**/login/**',
+      dependencies: ['setup'],
+      use: {
+        ...devices['Desktop Chrome'],
+        storageState: 'playwright/.auth/user.json'
+      }
     }
   ],
 
