@@ -146,7 +146,6 @@ test.describe('End to End Flow Tests', { tag: '@E2E' }, () => {
             }
         });
 
-        // Set up download handler
         const downloadPromise = page.waitForEvent('download');
         
         // Find and click the exact download button
