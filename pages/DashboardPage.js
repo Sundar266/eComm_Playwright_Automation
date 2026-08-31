@@ -6,7 +6,7 @@ class DashboardPage extends BasePage {
 
     this.homeMenu = page.getByRole('button', { name: 'HOME' });
     this.ordersMenu = page.getByRole('button', { name: 'ORDERS' });
-    this.cartMenu = page.getByRole('button', { name: 'Cart' });
+    this.cartMenu = page.locator('button[routerlink="/dashboard/cart"]');
     this.searchBox = page.getByPlaceholder('search');
     this.productsHeading = page.getByRole('heading', { name: 'Filters' });
     this.productImgs = page.getByRole('img');

@@ -1,3 +1,4 @@
+import { expect } from '@playwright/test';
 import {BasePage} from './BasePage.js';
 
 class OrdersPage extends BasePage {
@@ -8,6 +9,7 @@ class OrdersPage extends BasePage {
 
   async deleteAllProducts() {
     const deleteButtonsCount = await this.deleteButton.count();
+    console.log(deleteButtonsCount);
     this.logger.info(`Number of delete buttons found: ${deleteButtonsCount}`);
     if(this.deleteButton !== 0) {
       for (let i = 0; i < deleteButtonsCount; i++) {
@@ -16,6 +18,7 @@ class OrdersPage extends BasePage {
     }
     // Validate that all products have been deleted
     const remainingProducts = await this.deleteButton.count();
+    console.log(remainingProducts);
     this.logger.info(`Number of products remaining in cart: ${remainingProducts}`);
     expect(remainingProducts).toBe(0);
     //Navigate to home page after deleting all products
