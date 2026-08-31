@@ -5,6 +5,7 @@ class OrdersPage extends BasePage {
   constructor(page, logger) {
     super(page, logger);
     this.deleteButton = page.getByRole('button', { name: 'Delete' });
+    this.productInfoWrap = page.locator('.infoWrap'); 
   }
 
   async deleteAllProducts() {
