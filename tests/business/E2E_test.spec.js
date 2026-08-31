@@ -159,7 +159,7 @@ test.describe('End to End Flow Tests', { tag: '@E2E' }, () => {
                 downloadPromise,
                 // _ here is that we are saying, do not consider 'resolve' as a parameter, if we only give reject, then as it
                 // is a first param, JS will consider it as a 'resolve' only
-                new Promise((_, reject) => setTimeout(() => reject(new Error('Download timeout')), 5000))
+                new Promise(( _ , reject) => setTimeout(() => reject(new Error('Download timeout')), 5000))
             ]);
             if (download) {
                 const filename = download.suggestedFilename();
