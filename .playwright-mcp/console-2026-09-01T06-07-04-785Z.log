@@ -1,0 +1,12 @@
+[    1558ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ https://rahulshettyacademy.com/client/#/auth/login:0
+[   99872ms] [WARNING] [ngx-spinner]: Property "type" is missed. Please, provide animation type to <ngx-spinner> component
+        and ensure css is added to angular.json file @ https://rahulshettyacademy.com/client/342.9e55d8a34323d7dafdac.js:0
+[   99873ms] [WARNING] [ngx-spinner]: Property "type" is missed. Please, provide animation type to <ngx-spinner> component
+        and ensure css is added to angular.json file @ https://rahulshettyacademy.com/client/342.9e55d8a34323d7dafdac.js:0
+[  100225ms] [LOG] 0 @ https://rahulshettyacademy.com/client/135.4782aab7a591d79cf5e5.js:0
+[  100247ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ https://rahulshettyacademy.com/api/ecom/uploads/productImage_1663830854774.jpg:0
+[  100258ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ https://rahulshettyacademy.com/api/ecom/uploads/productImage_1663831053234.jpg:0
+[  100284ms] [LOG] 1 @ https://rahulshettyacademy.com/client/135.4782aab7a591d79cf5e5.js:0
+[  100286ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ https://rahulshettyacademy.com/api/ecom/uploads/productImage_1663856082847.jpg:0
+[  100290ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ https://rahulshettyacademy.com/api/ecom/uploads/productImage_1667395063277.jpg:0
+[  100355ms] [LOG] 2 @ https://rahulshettyacademy.com/client/135.4782aab7a591d79cf5e5.js:0
