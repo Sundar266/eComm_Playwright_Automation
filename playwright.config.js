@@ -89,6 +89,11 @@ export default defineConfig({
         ...devices['Desktop Chrome'],
         storageState: 'playwright/.auth/user.json'
       }
+    },
+    {
+      name: 'API-tests',
+      testDir: './tests/API_tests',
+      testIgnore: '**/login/**'
     }
   ],
 
