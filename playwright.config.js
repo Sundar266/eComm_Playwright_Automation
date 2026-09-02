@@ -73,7 +73,7 @@ export default defineConfig({
     {
       name: 'firefox',
       testDir: './tests',
-      testIgnore: '**/login/**',
+      testIgnore: ['**/API_tests/**','**/login/**'],
       dependencies: ['setup'],
       use: {
         ...devices['Desktop Firefox'],
@@ -83,7 +83,7 @@ export default defineConfig({
     {
       name: 'bussiness-tests',
       testDir: './tests/business',
-      testIgnore: '**/login/**',
+      testIgnore: ['**/API_tests/**','**/login/**'],
       dependencies: ['setup'],
       use: {
         ...devices['Desktop Chrome'],
@@ -91,9 +91,8 @@ export default defineConfig({
       }
     },
     {
-      name: 'API-tests',
-      testDir: './tests/API_tests',
-      testIgnore: '**/login/**'
+        name: 'API-tests',
+        testDir: './tests/API_tests'
     }
   ],
 

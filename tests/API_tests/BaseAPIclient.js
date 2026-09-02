@@ -16,7 +16,6 @@ export class BaseAPIclient {
         this.apiContext = await request.newContext({
             baseURL: this.baseURL,
             extraHTTPHeaders: {
-                'x-api-key': process.env.API_TEST_KEY,
                 'Authorization': `Bearer ${sessionToken}`,
                 'Content-Type': 'application/json'
             }

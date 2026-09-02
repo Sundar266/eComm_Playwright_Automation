@@ -4,16 +4,20 @@ export class TokenVault {
         this.sessionToken = null;
     }
 
-    async getToken() {
+    getToken() {
         return this.sessionToken;
     }
 
-    async setToken(token) {
+    setToken(token) {
         if (!token) {
             throw new Error('A session token is required');
         }
 
         this.sessionToken = token;
+    }
+
+    clearToken() {
+        this.sessionToken = null;
     }
 }
 

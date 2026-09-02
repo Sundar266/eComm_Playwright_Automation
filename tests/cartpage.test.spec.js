@@ -1,8 +1,8 @@
 import { test, expect } from '../fixtures/test.fixture.js';
 import {CartPage} from '../pages/CartPage.js';
-import { DashboardPage } from '../../pages/DashboardPage.js';
+import { DashboardPage } from '../pages/DashboardPage.js';
 import { OrdersPage } from '../pages/OrdersPage.js';
-import JSONData from '../../testData/data.json' assert { type: 'json' };
+import JSONData from '../testData/data.json' assert { type: 'json' };
 Object.freeze(JSONData); // Freeze the JSON data to make it immutable
 
 test.describe('Cart Page tests', {tag: '@Regression'},() => {
