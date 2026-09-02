@@ -3,7 +3,8 @@ import { TokenVault } from './token_vault.js';
 
 export async function generateSessionToken(vault = new TokenVault()) {
     const apiRequest = await request.newContext({
-        baseURL: process.env.API_TEST_BASE_URL
+        baseURL: process.env.API_TEST_BASE_URL,
+        extraHTTPHeaders: { 'x-api-key': process.env.API_TEST_KEY, 'Content-Type': 'application/json' }
     });
 
     try {
@@ -15,6 +16,7 @@ export async function generateSessionToken(vault = new TokenVault()) {
             }
         });
 
+        console.log('Login Response:', await login.json());
         expect(login.status()).toBe(200);
         expect(login.ok()).toBeTruthy();
         const { token } = await login.json();

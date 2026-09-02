@@ -12,15 +12,17 @@ export class BaseAPIclient {
             throw new Error('A session token is required to create the API context');
         }
 
+        conole.log(sessionToken);
         this.apiContext = await request.newContext({
             baseURL: this.baseURL,
             extraHTTPHeaders: {
-                'x-api-key': process.env.API_TEST_API_KEY,
+                'x-api-key': process.env.API_TEST_KEY,
                 'Authorization': `Bearer ${sessionToken}`,
                 'Content-Type': 'application/json'
             }
         });
 
+        console.log(this.apiContext.json());
         return this.apiContext;
     }
 
