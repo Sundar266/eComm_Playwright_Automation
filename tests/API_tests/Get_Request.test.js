@@ -30,11 +30,13 @@ test('Get records list', async ({ productApiContext }) => {
 test.only('Create a product', async ({ productApiContext }) => {
     const response = await productApiContext.post(`collections/products/records?project_id=${process.env.PROJECT_ID}`, 
                {
-                "data": {
+                data: {
+                    "data": {
                     "name": "Javascript Book",
                     "price": 500.89,
                     "category": "Education",
                     "in_stock": false
+                    }
                 }
              });
 
