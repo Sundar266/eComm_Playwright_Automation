@@ -10,6 +10,15 @@ const test = base.extend({
         } finally {
             await apiClient.dispose();
         }
+    },
+    productApiContext: async ({}, use) => {
+        const apiClient = new BaseAPIclient();
+        try {
+            const apiContext = await apiClient.createProductApiContext();
+            await use(apiContext);
+        } finally {
+            await apiClient.dispose();
+        }
     }
 });
 

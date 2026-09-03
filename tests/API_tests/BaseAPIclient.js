@@ -21,6 +21,20 @@ export class BaseAPIclient {
         return this.apiContext;
     }
 
+    async createProductApiContext() {
+
+            this.apiContext = await request.newContext({
+            baseURL: this.baseURL,
+            extraHTTPHeaders: {
+                'x-api-key': process.env.API_TEST_PRODUCT_KEY,
+                'X-Reqres-Env': 'prod',
+                'Content-Type': 'application/json'
+               }
+           });
+
+        return this.apiContext;
+    }
+
     async dispose() {
         await this.apiContext?.dispose();
     }

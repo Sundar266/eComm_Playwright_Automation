@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Create Product Response",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "name",
+    "price",
+    "category",
+    "in_stock",
+    "id",
+    "createdAt"
+  ],
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "price": {
+      "type": "number"
+    },
+    "category": {
+      "type": "string"
+    },
+    "in_stock": {
+      "type": "boolean"
+    },
+    "id": {
+      "type": "string"
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}
