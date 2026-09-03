@@ -1,27 +1,23 @@
 import { request } from '@playwright/test';
 
 export class BaseAPIclient {
-    
-    constructor({ baseURL = process.env.API_TEST_BASE_URL } = {}) {
+
+    constructor({baseURL = process.env.API_TEST_BASE_URL } = {}) {
         this.baseURL = baseURL;
         this.apiContext = null;
     }
 
-    async createApiContext(sessionToken) {
-        if (!sessionToken) {
-            throw new Error('A session token is required to create the API context');
-        }
+    async createApiContext() {
 
-        conole.log(sessionToken);
-        this.apiContext = await request.newContext({
+            this.apiContext = await request.newContext({
             baseURL: this.baseURL,
             extraHTTPHeaders: {
-                'Authorization': `Bearer ${sessionToken}`,
+                'x-api-key': process.env.API_TEST_KEY,
+                'X-Reqres-Env': 'prod',
                 'Content-Type': 'application/json'
-            }
-        });
+               }
+           });
 
-        console.log(this.apiContext.json());
         return this.apiContext;
     }
 
