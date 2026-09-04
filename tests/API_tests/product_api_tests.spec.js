@@ -7,51 +7,78 @@
 // addFormats(ajv);
 // const validateProductCreateResponse = ajv.compile(productCreateResponseSchema);
 
-// test.describe('ReqRes product API Tests', () => {
-
+// test.describe.serial('ReqRes product API Tests', () => {
 //     let id = null;
 
-//     test.step('Create a product', async ({ productApiContext }) => {
-//             const response = await productApiContext.post(`products/records/${process.env.PROJECT_ID}`, 
-//                    {
-//                         "data": {
-//                             "name": "MM Gloves",
-//                             "price": 159.99,
-//                             "category": "Sports",
-//                             "in_stock": true
-//                        }
-//                     });
-        
-//             const responseBody = await response.json();
-        
-//             expect(response.status()).toBe(201);
-//             expect(
-//                 validateProductCreateResponse(responseBody),
-//                 JSON.stringify(validateProductCreateResponse.errors, null, 2)
-//             ).toBe(true);
+//     test('Create a product', async ({ productApiContext }) => {
+//         const response = await productApiContext.post(
+//             `collections/products/records?project_id=${process.env.PROJECT_ID}`,
+//             {
+//                 data: {
+//                     data: {
+//                         name: 'Running Shoes',
+//                         price: 150.0,
+//                         category: 'Sportswear',
+//                         in_stock: false,
+//                     },
+//                 },
+//             }
+//         );
+
+//         const responseBody = await response.json();
+//         expect(response.status()).toBe(201);
+//         expect(responseBody).toHaveProperty('data');
+//         id = responseBody.data.id;
+
+//         const isValid = validateProductCreateResponse(responseBody);
+//         expect(isValid, JSON.stringify(validateProductCreateResponse.errors, null, 2)).toBe(true);
+//     });
+
+//     test('Update a product', async ({ productApiContext }) => {
+//         test.skip(!id, 'Create a product test must run before Update a product');
+
+//         const recordUrl = `collections/products/records/${id}?project_id=${process.env.PROJECT_ID}`;
+
+//         const preUpdateResponse = await productApiContext.get(recordUrl);
+//         expect(preUpdateResponse.status()).toBe(200);
+//         expect((await preUpdateResponse.json()).data.id).toBe(id);
+
+//         const response = await productApiContext.put(recordUrl, {
+//             data: {
+//                 data: {
+//                     price: 188.89,
+//                 },
+//             },
 //         });
 
-//     test.step('Update a product', async ({ productApiContext }) => {
-//             const response = await productApiContext.post(`products/records/351/${process.env.PROJECT_ID}`, 
-//            {
-//                 "data": {
-//                     "price": 170.99
-//                }
-//             });
+//         const responseBody = await response.json();
+//         console.log('UPDATED BODY:', responseBody);
+//         expect(response.status()).toBe(200);
+//         expect(responseBody.data.id).toBe(id);
 
-//              console.log(await response.json());
-//              id = (await response.json()).id;        
-//              expect(response.status()).toBe(201);
-
-//             //Validate the record that has been updated
-//             const confirmation_response = await productApiContext.get(`products/records/${id}/${process.env.PROJECT_ID}`);
-//             expect(confirmation_response.status()).toBe(200);
-//             expect((await confirmation_response.json()).data.price).toBe(170.99);   
+//         const confirmationResponse = await productApiContext.get(recordUrl);
+//         expect(confirmationResponse.status()).toBe(200);
+//         const confirmationBody = await confirmationResponse.json();
+//         expect(confirmationBody.data.data.price).toBe(188.89);
 //     });
 
-//     test.step('Delete a product', async ({ productApiContext }) => {
-//          const response = await productApiContext.delete(`products/records/${id}/${process.env.PROJECT_ID}`);
+//     test('Delete a product', async ({ productApiContext }) => {
+//         test.skip(!id, 'Create a product test must run before Delete a product');
 
-//          expect(response.status()).toBe(204);
+//         const recordUrl = `collections/products/records/${id}?project_id=${process.env.PROJECT_ID}`;
+
+//         const preDeleteResponse = await productApiContext.get(recordUrl);
+//         expect(preDeleteResponse.status()).toBe(200);
+
+//         const deleteResponse = await productApiContext.delete(recordUrl);
+//         expect(deleteResponse.status()).toBe(204);
+
+//         const postDeleteResponse = await productApiContext.get(recordUrl);
+//         expect([404, 410]).toContain(postDeleteResponse.status());
+
+//         if (postDeleteResponse.status() === 404) {
+//             const errorBody = await postDeleteResponse.json();
+//             expect(errorBody).toHaveProperty('message');
+//         }
 //     });
-// });    
+// });

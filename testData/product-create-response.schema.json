@@ -4,32 +4,82 @@
   "type": "object",
   "additionalProperties": false,
   "required": [
-    "name",
-    "price",
-    "category",
-    "in_stock",
-    "id",
-    "createdAt"
+    "data"
   ],
   "properties": {
-    "name": {
-      "type": "string"
-    },
-    "price": {
-      "type": "number"
-    },
-    "category": {
-      "type": "string"
-    },
-    "in_stock": {
-      "type": "boolean"
-    },
-    "id": {
-      "type": "string"
-    },
-    "createdAt": {
-      "type": "string",
-      "format": "date-time"
+    "data": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "collection_id",
+        "project_id",
+        "app_user_id",
+        "created_by",
+        "created_at",
+        "updated_at",
+        "deleted_at",
+        "data"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "collection_id": {
+          "type": "string"
+        },
+        "project_id": {
+          "type": "integer"
+        },
+        "app_user_id": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "created_by": {
+          "type": "integer"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "deleted_at": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "name",
+            "price",
+            "category",
+            "in_stock"
+          ],
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "price": {
+              "type": "number"
+            },
+            "category": {
+              "type": "string"
+            },
+            "in_stock": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
     }
   }
 }
